@@ -11,6 +11,7 @@ IMPORTANT LESSONS
 1. With euler method, a time step less than 0.0016 is needed to be stable
 2. With RK4 method, a time step less than 0.1 is needed to be stable
 3. For about 4x the computation, RK4 allows you to have about 60x the time step
+4. You need more storage for RK4 than euler method
 */
 
 class Random
@@ -174,8 +175,8 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		double dt = 0.0016;
-		bool rungeKutta = false;
+		double dt = 0.1;
+		bool rungeKutta = true;
 		
 		if (rungeKutta)
 		{
