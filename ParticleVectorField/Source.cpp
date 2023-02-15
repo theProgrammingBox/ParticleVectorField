@@ -150,6 +150,8 @@ public:
 		return olc::Pixel(r * 0xff, g * 0xff, b * 0xff);
 	}
 
+	olc::Pixel mapToBAndW(double d) { return olc::Pixel(d * 0xff, d * 0xff, d * 0xff); }
+
 	void RungeKutta(double dt)
 	{
 		Clear(olc::BLACK);
@@ -182,7 +184,8 @@ public:
 			tempMinSpeed = std::min(tempMinSpeed, speed);
 			tempMaxSpeed = std::max(tempMaxSpeed, speed);
 			
-			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
+			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) / range));
 		}
 		
 		minSpeed = tempMinSpeed;
@@ -211,7 +214,8 @@ public:
 			tempMinSpeed = std::min(tempMinSpeed, speed);
 			tempMaxSpeed = std::max(tempMaxSpeed, speed);
 			
-			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
+			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) / range));
 		}
 		
 		minSpeed = tempMinSpeed;
