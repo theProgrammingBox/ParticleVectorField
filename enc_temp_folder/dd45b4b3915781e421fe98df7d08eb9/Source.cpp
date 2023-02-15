@@ -132,16 +132,16 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		double dt = 0.02f;
+		double fps = 0.02f;
 		double dx, dy, dz;
 		
 		Clear(olc::BLACK);
 		
 		for (int i = numParticles; i--;) {
 			halvorsenAttractor(x[i], y[i], z[i], dx, dy, dz);
-			x[i] += dx * dt;
-			y[i] += dy * dt;
-			z[i] += dz * dt;
+			x[i] += dx * fps;
+			y[i] += dy * fps;
+			z[i] += dz * fps;
 			Draw(x[i] * 2 + orginX, y[i] * 2 + orginY);
 		}
 		
