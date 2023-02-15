@@ -8,10 +8,10 @@ using std::chrono::microseconds;
 
 /*
 IMPORTANT LESSONS
-1. With euler method, a time step less than 0.0016 is needed to be stable
-2. With RK4 method, a time step less than 0.1 is needed to be stable
-3. For about 4x the computation, RK4 allows you to have about 60x the time step
-4. You need more storage for RK4 than euler method
+1. With euler method, a substep of 10 is needed to be stable
+2. With RK4 method, a substep of 920 is needed to be stable
+3. For about 4x the computation, RK4 allows you to have about 92x the stability
+4. However, you need more storage for RK4 than euler method
 */
 
 class Random
@@ -102,7 +102,6 @@ public:
 	double* y = new double[numParticles];
 	double* z = new double[numParticles];
 	double orginX, orginY;
-	double minSpeed, maxSpeed;
 	
 	Example()
 	{
@@ -126,8 +125,8 @@ public:
 			z[i] = GLOBAL::random.Rfloat(-8, 2);
 		}
 
-		orginX = ScreenWidth() / 2;
-		orginY = ScreenHeight() / 2;
+		orginX = ScreenWidth() * 0.5;
+		orginY = ScreenHeight() * 0.5;
 		
 		return true;
 	}
@@ -140,30 +139,12 @@ public:
 		return count;
 	}
 
-	olc::Pixel mapToRainbow(double d)	// 0 - 1
-	{
-		d *= 6;
-		double r = (d > 4) ? std::max(0.0, std::min(1.0, 6 - d)) : std::max(0.0, std::min(1.0, d - 2));
-		double g = (d > 2) ? std::max(0.0, std::min(1.0, 4 - d)) : std::max(0.0, std::min(1.0, d));
-		double b = (d > 3) ? std::max(0.0, std::min(1.0, d - 4)) : std::max(0.0, std::min(1.0, 2 - d));
-
-		return olc::Pixel(r * 0xff, g * 0xff, b * 0xff);
-	}
-
-	olc::Pixel mapToBAndW(double d) { return olc::Pixel(d * 0xff, d * 0xff, d * 0xff); }
-
 	void RungeKutta(double dt)
 	{
-		Clear(olc::BLACK);
-		
 		double dx1, dy1, dz1;
 		double dx2, dy2, dz2;
 		double dx3, dy3, dz3;
 		double dx4, dy4, dz4;
-		double range = 1 / (maxSpeed - minSpeed);
-		double speed;
-		double tempMinSpeed = DBL_MAX;
-		double tempMaxSpeed = DBL_MIN;
 		
 		for (int i = numParticles; i--;)
 		{
@@ -172,35 +153,15 @@ public:
 			halvorsenAttractor(x[i] + dx2 * dt * 0.5, y[i] + dy2 * dt * 0.5, z[i] + dz2 * dt * 0.5, dx3, dy3, dz3);
 			halvorsenAttractor(x[i] + dx3 * dt, y[i] + dy3 * dt, z[i] + dz3 * dt, dx4, dy4, dz4);
 
-			dx1 = (dx1 + 2 * dx2 + 2 * dx3 + dx4) * dt * 0.166666666667;
-			dy1 = (dy1 + 2 * dy2 + 2 * dy3 + dy4) * dt * 0.166666666667;
-			dz1 = (dz1 + 2 * dz2 + 2 * dz3 + dz4) * dt * 0.166666666667;
-			
-			x[i] += dx1;
-			y[i] += dy1;
-			z[i] += dz1;
-
-			speed = std::sqrt(dx1 * dx1 + dy1 * dy1 + dz1 * dz1);
-			tempMinSpeed = std::min(tempMinSpeed, speed);
-			tempMaxSpeed = std::max(tempMaxSpeed, speed);
-			
-			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) * range));
-			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) * range));
+			x[i] += (dx1 + 2 * dx2 + 2 * dx3 + dx4) * dt * 0.166666666667;
+			y[i] += (dy1 + 2 * dy2 + 2 * dy3 + dy4) * dt * 0.166666666667;
+			z[i] += (dz1 + 2 * dz2 + 2 * dz3 + dz4) * dt * 0.166666666667;
 		}
-		
-		minSpeed = tempMinSpeed;
-		maxSpeed = tempMaxSpeed;
 	}
 
 	void Euler(double dt)
 	{
-		Clear(olc::BLACK);
-		
 		double dx, dy, dz;
-		double range = 1 / (maxSpeed - minSpeed);
-		double speed;
-		double tempMinSpeed = DBL_MAX;
-		double tempMaxSpeed = DBL_MIN;
 
 		for (int i = numParticles; i--;)
 		{
@@ -209,32 +170,34 @@ public:
 			x[i] += dx * dt;
 			y[i] += dy * dt;
 			z[i] += dz * dt;
-
-			speed = std::sqrt(dx * dx + dy * dy + dz * dz);
-			tempMinSpeed = std::min(tempMinSpeed, speed);
-			tempMaxSpeed = std::max(tempMaxSpeed, speed);
-			
-			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) * range));
-			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) * range));
 		}
-		
-		minSpeed = tempMinSpeed;
-		maxSpeed = tempMaxSpeed;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		double dt = 0.01;
+		double dt = 1;
+		int subSteps;
 		bool rungeKutta = true;
 		
 		if (rungeKutta)
 		{
-			RungeKutta(dt);
+			subSteps = 10;
+			dt /= subSteps;
+			for (int i = subSteps; i--;)
+				RungeKutta(dt);
 		}
 		else
 		{
-			Euler(dt);
+			subSteps = 920;
+			dt /= subSteps;
+			for (int i = subSteps; i--;)
+				Euler(dt);
 		}
+		
+		Clear(olc::BLACK);
+
+		for (int i = numParticles; i--;)
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY);
 		
 		DrawString(10, 10, "Particles in screen: " + std::to_string(particlesInScreen()) + " / " + std::to_string(numParticles), olc::WHITE);
 		
