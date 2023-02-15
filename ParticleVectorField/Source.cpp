@@ -97,10 +97,10 @@ namespace GLOBAL
 class Example : public olc::PixelGameEngine
 {
 public:
-	static constexpr int numParticles = 10000;
-	double x[numParticles];
-	double y[numParticles];
-	double z[numParticles];
+	static constexpr int numParticles = 100000;
+	double* x = new double[numParticles];
+	double* y = new double[numParticles];
+	double* z = new double[numParticles];
 	double orginX, orginY;
 	double minSpeed, maxSpeed;
 	
@@ -224,7 +224,7 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		double dt = 0.1;
+		double dt = 0.01;
 		bool rungeKutta = true;
 		
 		if (rungeKutta)
