@@ -130,9 +130,16 @@ public:
 		return true;
 	}
 
-	bool OnUserUpdate(float fElapsedTime) override
+	int particlesInScreen()
 	{
-		double dt = 1;
+		int count = 0;
+		for (int i = numParticles; i--;)
+			count += x[i] * 2 + orginX > 0 && x[i] * 2 + orginX < ScreenWidth() && y[i] * 2 + orginY > 0 && y[i] * 2 + orginY < ScreenHeight();
+		return count;
+	}
+
+	void RungeKutta(double dt)
+	{
 		double dx1[numParticles];
 		double dy1[numParticles];
 		double dz1[numParticles];
@@ -146,38 +153,51 @@ public:
 		double dy4[numParticles];
 		double dz4[numParticles];
 		
-		// Runge-Kutta (RK4)
-		int particlesInScreen = 0;
 		for (int i = numParticles; i--;)
 		{
-			if (true)
-			{
-				halvorsenAttractor(x[i], y[i], z[i], dx1[i], dy1[i], dz1[i]);
-				halvorsenAttractor(x[i] + dx1[i] * dt * 0.5, y[i] + dy1[i] * dt * 0.5, z[i] + dz1[i] * dt * 0.5, dx2[i], dy2[i], dz2[i]);
-				halvorsenAttractor(x[i] + dx2[i] * dt * 0.5, y[i] + dy2[i] * dt * 0.5, z[i] + dz2[i] * dt * 0.5, dx3[i], dy3[i], dz3[i]);
-				halvorsenAttractor(x[i] + dx3[i] * dt, y[i] + dy3[i] * dt, z[i] + dz3[i] * dt, dx4[i], dy4[i], dz4[i]);
+			halvorsenAttractor(x[i], y[i], z[i], dx1[i], dy1[i], dz1[i]);
+			halvorsenAttractor(x[i] + dx1[i] * dt * 0.5, y[i] + dy1[i] * dt * 0.5, z[i] + dz1[i] * dt * 0.5, dx2[i], dy2[i], dz2[i]);
+			halvorsenAttractor(x[i] + dx2[i] * dt * 0.5, y[i] + dy2[i] * dt * 0.5, z[i] + dz2[i] * dt * 0.5, dx3[i], dy3[i], dz3[i]);
+			halvorsenAttractor(x[i] + dx3[i] * dt, y[i] + dy3[i] * dt, z[i] + dz3[i] * dt, dx4[i], dy4[i], dz4[i]);
 
-				x[i] += (dx1[i] + 2 * dx2[i] + 2 * dx3[i] + dx4[i]) * dt / 6;
-				y[i] += (dy1[i] + 2 * dy2[i] + 2 * dy3[i] + dy4[i]) * dt / 6;
-				z[i] += (dz1[i] + 2 * dz2[i] + 2 * dz3[i] + dz4[i]) * dt / 6;
-			}
-			else
-			{
-				halvorsenAttractor(x[i], y[i], z[i], dx1[i], dy1[i], dz1[i]);
-				x[i] += dx1[i] * dt;
-				y[i] += dy1[i] * dt;
-				z[i] += dz1[i] * dt;
-			}
+			x[i] += (dx1[i] + 2 * dx2[i] + 2 * dx3[i] + dx4[i]) * dt / 6;
+			y[i] += (dy1[i] + 2 * dy2[i] + 2 * dy3[i] + dy4[i]) * dt / 6;
+			z[i] += (dz1[i] + 2 * dz2[i] + 2 * dz3[i] + dz4[i]) * dt / 6;
+		}
+	}
 
-			if (x[i] * 2 + orginX > 0 && x[i] * 2 + orginX < ScreenWidth() && y[i] * 2 + orginY > 0 && y[i] * 2 + orginY < ScreenHeight())
-				particlesInScreen++;
+	void Euler(double dt)
+	{
+		double dx, dy, dz;
+
+		for (int i = numParticles; i--;)
+		{
+			halvorsenAttractor(x[i], y[i], z[i], dx, dy, dz);
+			x[i] += dx * dt;
+			y[i] += dy * dt;
+			z[i] += dz * dt;
+		}
+	}
+
+	bool OnUserUpdate(float fElapsedTime) override
+	{
+		double dt = 1;
+		bool rungeKutta = true;
+		
+		if (rungeKutta)
+		{
+			RungeKutta(dt);
+		}
+		else
+		{
+			Euler(dt);
 		}
 		
 		Clear(olc::BLACK);
 		for (int i = numParticles; i--;)
 			Draw(x[i] * 2 + orginX, y[i] * 2 + orginY);
 		
-		DrawString(0, 0, "Particles in screen: " + std::to_string(particlesInScreen), olc::WHITE);
+		DrawString(10, 10, "Particles in screen: " + std::to_string(particlesInScreen()) + " / " + std::to_string(numParticles), olc::WHITE);
 		
 		return true;
 	}
