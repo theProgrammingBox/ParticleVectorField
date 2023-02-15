@@ -160,7 +160,7 @@ public:
 		double dx2, dy2, dz2;
 		double dx3, dy3, dz3;
 		double dx4, dy4, dz4;
-		double range = maxSpeed - minSpeed;
+		double range = 1 / (maxSpeed - minSpeed);
 		double speed;
 		double tempMinSpeed = DBL_MAX;
 		double tempMaxSpeed = DBL_MIN;
@@ -184,8 +184,8 @@ public:
 			tempMinSpeed = std::min(tempMinSpeed, speed);
 			tempMaxSpeed = std::max(tempMaxSpeed, speed);
 			
-			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
-			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) / range));
+			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) * range));
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) * range));
 		}
 		
 		minSpeed = tempMinSpeed;
@@ -197,7 +197,7 @@ public:
 		Clear(olc::BLACK);
 		
 		double dx, dy, dz;
-		double range = maxSpeed - minSpeed;
+		double range = 1 / (maxSpeed - minSpeed);
 		double speed;
 		double tempMinSpeed = DBL_MAX;
 		double tempMaxSpeed = DBL_MIN;
@@ -214,8 +214,8 @@ public:
 			tempMinSpeed = std::min(tempMinSpeed, speed);
 			tempMaxSpeed = std::max(tempMaxSpeed, speed);
 			
-			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
-			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) / range));
+			//Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) * range));
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToBAndW((speed - minSpeed) * range));
 		}
 		
 		minSpeed = tempMinSpeed;
