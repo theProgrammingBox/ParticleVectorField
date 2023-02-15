@@ -140,29 +140,21 @@ public:
 
 	void RungeKutta(double dt)
 	{
-		double dx1[numParticles];
-		double dy1[numParticles];
-		double dz1[numParticles];
-		double dx2[numParticles];
-		double dy2[numParticles];
-		double dz2[numParticles];
-		double dx3[numParticles];
-		double dy3[numParticles];
-		double dz3[numParticles];
-		double dx4[numParticles];
-		double dy4[numParticles];
-		double dz4[numParticles];
+		double dx1, dy1, dz1;
+		double dx2, dy2, dz2;
+		double dx3, dy3, dz3;
+		double dx4, dy4, dz4;
 		
 		for (int i = numParticles; i--;)
 		{
-			halvorsenAttractor(x[i], y[i], z[i], dx1[i], dy1[i], dz1[i]);
-			halvorsenAttractor(x[i] + dx1[i] * dt * 0.5, y[i] + dy1[i] * dt * 0.5, z[i] + dz1[i] * dt * 0.5, dx2[i], dy2[i], dz2[i]);
-			halvorsenAttractor(x[i] + dx2[i] * dt * 0.5, y[i] + dy2[i] * dt * 0.5, z[i] + dz2[i] * dt * 0.5, dx3[i], dy3[i], dz3[i]);
-			halvorsenAttractor(x[i] + dx3[i] * dt, y[i] + dy3[i] * dt, z[i] + dz3[i] * dt, dx4[i], dy4[i], dz4[i]);
+			halvorsenAttractor(x[i], y[i], z[i], dx1, dy1, dz1);
+			halvorsenAttractor(x[i] + dx1 * dt * 0.5, y[i] + dy1 * dt * 0.5, z[i] + dz1 * dt * 0.5, dx2, dy2, dz2);
+			halvorsenAttractor(x[i] + dx2 * dt * 0.5, y[i] + dy2 * dt * 0.5, z[i] + dz2 * dt * 0.5, dx3, dy3, dz3);
+			halvorsenAttractor(x[i] + dx3 * dt, y[i] + dy3 * dt, z[i] + dz3 * dt, dx4, dy4, dz4);
 
-			x[i] += (dx1[i] + 2 * dx2[i] + 2 * dx3[i] + dx4[i]) * dt / 6;
-			y[i] += (dy1[i] + 2 * dy2[i] + 2 * dy3[i] + dy4[i]) * dt / 6;
-			z[i] += (dz1[i] + 2 * dz2[i] + 2 * dz3[i] + dz4[i]) * dt / 6;
+			x[i] += (dx1 + 2 * dx2 + 2 * dx3 + dx4) * dt * 0.166666666667;
+			y[i] += (dy1 + 2 * dy2 + 2 * dy3 + dy4) * dt * 0.166666666667;
+			z[i] += (dz1 + 2 * dz2 + 2 * dz3 + dz4) * dt * 0.166666666667;
 		}
 	}
 
