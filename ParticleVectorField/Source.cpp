@@ -6,6 +6,13 @@ using std::chrono::duration_cast;
 using std::chrono::nanoseconds;
 using std::chrono::microseconds;
 
+/*
+IMPORTANT LESSONS
+1. With euler method, a time step less than 0.01 is needed to be stable
+2. With RK4 method, a time step less than 1 is needed to be stable
+3. For about 4x the computation, RK4 allows you to have about 100x the time step
+*/
+
 class Random
 {
 public:
@@ -86,7 +93,6 @@ namespace GLOBAL
 	Random random(Random::MakeSeed(0));
 }
 
-// Override base class with your custom functionality
 class Example : public olc::PixelGameEngine
 {
 public:
@@ -173,8 +179,8 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		double dt = 1;
-		bool rungeKutta = true;
+		double dt = 0.01;
+		bool rungeKutta = false;
 		
 		if (rungeKutta)
 		{
