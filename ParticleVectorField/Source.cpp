@@ -8,9 +8,9 @@ using std::chrono::microseconds;
 
 /*
 IMPORTANT LESSONS
-1. With euler method, a time step less than 0.01 is needed to be stable
-2. With RK4 method, a time step less than 1 is needed to be stable
-3. For about 4x the computation, RK4 allows you to have about 100x the time step
+1. With euler method, a time step less than 0.0016 is needed to be stable
+2. With RK4 method, a time step less than 0.1 is needed to be stable
+3. For about 4x the computation, RK4 allows you to have about 60x the time step
 */
 
 class Random
@@ -110,24 +110,19 @@ public:
 	
 	void halvorsenAttractor(double x, double y, double z, double& dx, double& dy, double& dz)
 	{
-		const double a = 1.4;
-
-		x = x * 0.1;
-		y = y * 0.1;
-		z = z * 0.1;
-
-		dx = -a * x - 4 * y - 4 * z - y * y;
-		dy = -a * y - 4 * z - 4 * x - z * z;
-		dz = -a * z - 4 * x - 4 * y - x * x;
+		dx = -1.4 * x - 4 * y - 4 * z - y * y;
+		dy = -1.4 * y - 4 * z - 4 * x - z * z;
+		dz = -1.4 * z - 4 * x - 4 * y - x * x;
 	}
 
 	
 	bool OnUserCreate() override
 	{
-		for (int i = 0; i < numParticles; i++) {
-			x[i] = GLOBAL::random.Rfloat(-80, 20);
-			y[i] = GLOBAL::random.Rfloat(-80, 20);
-			z[i] = GLOBAL::random.Rfloat(-80, 20);
+		for (int i = 0; i < numParticles; i++)
+		{
+			x[i] = GLOBAL::random.Rfloat(-8, 2);
+			y[i] = GLOBAL::random.Rfloat(-8, 2);
+			z[i] = GLOBAL::random.Rfloat(-8, 2);
 		}
 
 		orginX = ScreenWidth() / 2;
@@ -179,7 +174,7 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		double dt = 0.01;
+		double dt = 0.0016;
 		bool rungeKutta = false;
 		
 		if (rungeKutta)
@@ -193,7 +188,7 @@ public:
 		
 		Clear(olc::BLACK);
 		for (int i = numParticles; i--;)
-			Draw(x[i] * 2 + orginX, y[i] * 2 + orginY);
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY);
 		
 		DrawString(10, 10, "Particles in screen: " + std::to_string(particlesInScreen()) + " / " + std::to_string(numParticles), olc::WHITE);
 		
