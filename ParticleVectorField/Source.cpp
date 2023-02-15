@@ -101,8 +101,8 @@ public:
 	double x[numParticles];
 	double y[numParticles];
 	double z[numParticles];
-
 	double orginX, orginY;
+	double minSpeed, maxSpeed;
 	
 	Example()
 	{
@@ -140,12 +140,28 @@ public:
 		return count;
 	}
 
+	olc::Pixel mapToRainbow(double d)	// 0 - 1
+	{
+		d *= 6;
+		double r = (d > 4) ? std::max(0.0, std::min(1.0, 6 - d)) : std::max(0.0, std::min(1.0, d - 2));
+		double g = (d > 2) ? std::max(0.0, std::min(1.0, 4 - d)) : std::max(0.0, std::min(1.0, d));
+		double b = (d > 3) ? std::max(0.0, std::min(1.0, d - 4)) : std::max(0.0, std::min(1.0, 2 - d));
+
+		return olc::Pixel(r * 0xff, g * 0xff, b * 0xff);
+	}
+
 	void RungeKutta(double dt)
 	{
+		Clear(olc::BLACK);
+		
 		double dx1, dy1, dz1;
 		double dx2, dy2, dz2;
 		double dx3, dy3, dz3;
 		double dx4, dy4, dz4;
+		double range = maxSpeed - minSpeed;
+		double speed;
+		double tempMinSpeed = DBL_MAX;
+		double tempMaxSpeed = DBL_MIN;
 		
 		for (int i = numParticles; i--;)
 		{
@@ -154,23 +170,52 @@ public:
 			halvorsenAttractor(x[i] + dx2 * dt * 0.5, y[i] + dy2 * dt * 0.5, z[i] + dz2 * dt * 0.5, dx3, dy3, dz3);
 			halvorsenAttractor(x[i] + dx3 * dt, y[i] + dy3 * dt, z[i] + dz3 * dt, dx4, dy4, dz4);
 
-			x[i] += (dx1 + 2 * dx2 + 2 * dx3 + dx4) * dt * 0.166666666667;
-			y[i] += (dy1 + 2 * dy2 + 2 * dy3 + dy4) * dt * 0.166666666667;
-			z[i] += (dz1 + 2 * dz2 + 2 * dz3 + dz4) * dt * 0.166666666667;
+			dx1 = (dx1 + 2 * dx2 + 2 * dx3 + dx4) * dt * 0.166666666667;
+			dy1 = (dy1 + 2 * dy2 + 2 * dy3 + dy4) * dt * 0.166666666667;
+			dz1 = (dz1 + 2 * dz2 + 2 * dz3 + dz4) * dt * 0.166666666667;
+			
+			x[i] += dx1;
+			y[i] += dy1;
+			z[i] += dz1;
+
+			speed = std::sqrt(dx1 * dx1 + dy1 * dy1 + dz1 * dz1);
+			tempMinSpeed = std::min(tempMinSpeed, speed);
+			tempMaxSpeed = std::max(tempMaxSpeed, speed);
+			
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
 		}
+		
+		minSpeed = tempMinSpeed;
+		maxSpeed = tempMaxSpeed;
 	}
 
 	void Euler(double dt)
 	{
+		Clear(olc::BLACK);
+		
 		double dx, dy, dz;
+		double range = maxSpeed - minSpeed;
+		double speed;
+		double tempMinSpeed = DBL_MAX;
+		double tempMaxSpeed = DBL_MIN;
 
 		for (int i = numParticles; i--;)
 		{
 			halvorsenAttractor(x[i], y[i], z[i], dx, dy, dz);
+
 			x[i] += dx * dt;
 			y[i] += dy * dt;
 			z[i] += dz * dt;
+
+			speed = std::sqrt(dx * dx + dy * dy + dz * dz);
+			tempMinSpeed = std::min(tempMinSpeed, speed);
+			tempMaxSpeed = std::max(tempMaxSpeed, speed);
+			
+			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY, mapToRainbow((speed - minSpeed) / range));
 		}
+		
+		minSpeed = tempMinSpeed;
+		maxSpeed = tempMaxSpeed;
 	}
 
 	bool OnUserUpdate(float fElapsedTime) override
@@ -186,10 +231,6 @@ public:
 		{
 			Euler(dt);
 		}
-		
-		Clear(olc::BLACK);
-		for (int i = numParticles; i--;)
-			Draw(x[i] * 20 + orginX, y[i] * 20 + orginY);
 		
 		DrawString(10, 10, "Particles in screen: " + std::to_string(particlesInScreen()) + " / " + std::to_string(numParticles), olc::WHITE);
 		
