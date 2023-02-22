@@ -139,26 +139,6 @@ public:
 		return count;
 	}
 
-	void RungeKutta(double dt)
-	{
-		double dx1, dy1, dz1;
-		double dx2, dy2, dz2;
-		double dx3, dy3, dz3;
-		double dx4, dy4, dz4;
-		
-		for (int i = numParticles; i--;)
-		{
-			halvorsenAttractor(x[i], y[i], z[i], dx1, dy1, dz1);
-			halvorsenAttractor(x[i] + dx1 * dt * 0.5, y[i] + dy1 * dt * 0.5, z[i] + dz1 * dt * 0.5, dx2, dy2, dz2);
-			halvorsenAttractor(x[i] + dx2 * dt * 0.5, y[i] + dy2 * dt * 0.5, z[i] + dz2 * dt * 0.5, dx3, dy3, dz3);
-			halvorsenAttractor(x[i] + dx3 * dt, y[i] + dy3 * dt, z[i] + dz3 * dt, dx4, dy4, dz4);
-
-			x[i] += (dx1 + 2 * dx2 + 2 * dx3 + dx4) * dt * 0.166666666667;
-			y[i] += (dy1 + 2 * dy2 + 2 * dy3 + dy4) * dt * 0.166666666667;
-			z[i] += (dz1 + 2 * dz2 + 2 * dz3 + dz4) * dt * 0.166666666667;
-		}
-	}
-
 	void Euler(double dt)
 	{
 		double dx, dy, dz;
@@ -173,22 +153,48 @@ public:
 		}
 	}
 
+	void RungeKutta(double dt)
+	{
+		double tempX, tempY, tempZ, dx, dy, dz, savedX, savedY, savedZ;
+		double applied[4] = { 0, 0.5, 0.5, 1 };
+		double summed[4] = { 0.166666666667, 0.333333333333, 0.333333333333, 0.166666666667 };
+
+		for (uint32_t i = numParticles; i--;)
+		{
+			savedX = x[i];
+			savedY = y[i];
+			savedZ = z[i];
+			dx = dy = dz = 0;
+			
+			for (uint32_t j = 0; j < 4; j++)
+			{
+				tempX = savedX + applied[j] * dx * dt;
+				tempY = savedY + applied[j] * dy * dt;
+				tempZ = savedZ + applied[j] * dz * dt;
+				halvorsenAttractor(tempX, tempY, tempZ, dx, dy, dz);
+				x[i] += dx * dt * summed[j];
+				y[i] += dy * dt * summed[j];
+				z[i] += dz * dt * summed[j];
+			}
+		}
+	}
+
 	bool OnUserUpdate(float fElapsedTime) override
 	{
-		double dt = 1;
+		double dt = 0.1;
 		int subSteps;
 		bool rungeKutta = true;
 		
 		if (rungeKutta)
 		{
-			subSteps = 10;
+			subSteps = 1;
 			dt /= subSteps;
 			for (int i = subSteps; i--;)
 				RungeKutta(dt);
 		}
 		else
 		{
-			subSteps = 920;
+			subSteps = 90;
 			dt /= subSteps;
 			for (int i = subSteps; i--;)
 				Euler(dt);
