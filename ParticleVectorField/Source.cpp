@@ -156,8 +156,8 @@ public:
 	void RungeKutta(double dt)
 	{
 		double tempX, tempY, tempZ, dx, dy, dz, savedX, savedY, savedZ;
-		double applied[4] = { 0, 0.5, 0.5, 1 };
-		double summed[4] = { 0.166666666667, 0.333333333333, 0.333333333333, 0.166666666667 };
+		double applied[4] = { 0 * dt, 0.5 * dt, 0.5 * dt, 1 * dt };
+		double summed[4] = { 0.166666666667 * dt, 0.333333333333 * dt, 0.333333333333 * dt, 0.166666666667 * dt };
 
 		for (uint32_t i = numParticles; i--;)
 		{
@@ -168,13 +168,13 @@ public:
 			
 			for (uint32_t j = 0; j < 4; j++)
 			{
-				tempX = savedX + applied[j] * dt * dx;
-				tempY = savedY + applied[j] * dt * dy;
-				tempZ = savedZ + applied[j] * dt * dz;
+				tempX = savedX + applied[j] * dx;
+				tempY = savedY + applied[j] * dy;
+				tempZ = savedZ + applied[j] * dz;
 				halvorsenAttractor(tempX, tempY, tempZ, dx, dy, dz);
-				x[i] += summed[j] * dt * dx;
-				y[i] += summed[j] * dt * dy;
-				z[i] += summed[j] * dt * dz;
+				x[i] += summed[j] * dx;
+				y[i] += summed[j] * dy;
+				z[i] += summed[j] * dz;
 			}
 		}
 	}
