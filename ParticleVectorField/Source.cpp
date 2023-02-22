@@ -168,13 +168,13 @@ public:
 			
 			for (uint32_t j = 0; j < 4; j++)
 			{
-				tempX = savedX + applied[j] * dx * dt;
-				tempY = savedY + applied[j] * dy * dt;
-				tempZ = savedZ + applied[j] * dz * dt;
+				tempX = savedX + applied[j] * dt * dx;
+				tempY = savedY + applied[j] * dt * dy;
+				tempZ = savedZ + applied[j] * dt * dz;
 				halvorsenAttractor(tempX, tempY, tempZ, dx, dy, dz);
-				x[i] += dx * dt * summed[j];
-				y[i] += dy * dt * summed[j];
-				z[i] += dz * dt * summed[j];
+				x[i] += summed[j] * dt * dx;
+				y[i] += summed[j] * dt * dy;
+				z[i] += summed[j] * dt * dz;
 			}
 		}
 	}
